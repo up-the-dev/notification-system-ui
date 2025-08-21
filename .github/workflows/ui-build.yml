@@ -75,13 +75,13 @@ jobs:
           method: approle
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
-  #        secrets: |
-  #          kv/data/stpl MICROSOFT_TEAMS_WEBHOOK_URL | MICROSOFT_TEAMS_WEBHOOK_URL ;
+          secrets: |
+            kv/data/stpl MICROSOFT_TEAMS_WEBHOOK_URL | MICROSOFT_TEAMS_WEBHOOK_URL ;
   #          kv/data/jalvitaran SSH_KEY | SSH_KEY ;
-  #          kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
-  #          kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD;
-  #          kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
-  #          kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
+            kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
+            kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD;
+            kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
+            kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
   #          kv/data/stpl KEY_161 | KEY_161  
 
 
@@ -105,6 +105,14 @@ jobs:
       - name: Build React App
         run: npm run build
 
+      - name: Build application
+        run: make build
+
+      - name: ls
+        run: |
+          ls -al
+
+          
       - name: Upload Website Files
         uses: actions/upload-artifact@v3
         with:
