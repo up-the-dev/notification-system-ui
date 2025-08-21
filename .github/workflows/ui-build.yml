@@ -134,13 +134,13 @@ jobs:
 #           sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" charts/notification-ui/values.yaml
 #           grep tag charts/notification-ui/values.yaml
 
-      - name: Commit updated files
-        run: |
-          git config --global user.name "$(git log -1 --pretty='%an')"
-          git config --global user.email "$(git log -1 --pretty='%ae')"
-          git add charts/notification-ui/values.yaml
-          git commit -m "Update image tag to ${{ needs.tag.outputs.new_tag }}" || echo "No changes to commit"
-          git push origin demo
+#      - name: Commit updated files
+#         run: |
+#          git config --global user.name "$(git log -1 --pretty='%an')"
+#           git config --global user.email "$(git log -1 --pretty='%ae')"
+#           git add charts/notification-ui/values.yaml
+#           git commit -m "Update image tag to ${{ needs.tag.outputs.new_tag }}" || echo "No changes to commit"
+#          git push origin demo
 
       - name: Microsoft Teams Notification
         uses: skitionek/notify-microsoft-teams@v1.0.8
