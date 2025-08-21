@@ -79,7 +79,7 @@ jobs:
              kv/data/stpl MICROSOFT_TEAMS_WEBHOOK_URL | MICROSOFT_TEAMS_WEBHOOK_URL ;
   #          kv/data/jalvitaran SSH_KEY | SSH_KEY ;
              kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
-             kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD;
+ #           kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD;
              kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
              kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
   #          kv/data/stpl KEY_161 | KEY_161  
