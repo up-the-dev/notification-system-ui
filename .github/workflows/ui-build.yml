@@ -79,7 +79,7 @@ jobs:
             kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
             kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
             kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
-#           kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD ;
+            kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD ;
 
       - name: SonarQube scan
         uses: sonarsource/sonarqube-scan-action@v3
@@ -105,8 +105,8 @@ jobs:
       - name: Upload Website Files
         uses: actions/upload-artifact@v3
         with:
-          name: build
-          path: build/
+          name: dist
+          path: dist/
           retention-days: 1
 
       - name: Log in to Docker registry
