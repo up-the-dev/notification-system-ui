@@ -129,10 +129,10 @@ jobs:
             reg.shauryatechnosoft.com/notification/ui:${{ needs.tag.outputs.new_tag }}
           no-cache: true
 
-      - name: Update Helm values with new tag
-        run: |
-          sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" charts/notification-ui/values.yaml
-          grep tag charts/notification-ui/values.yaml
+#       - name: Update Helm values with new tag
+#         run: |
+#           sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" charts/notification-ui/values.yaml
+#           grep tag charts/notification-ui/values.yaml
 
       - name: Commit updated files
         run: |
