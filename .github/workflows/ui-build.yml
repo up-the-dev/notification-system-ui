@@ -26,7 +26,6 @@ jobs:
           set -eo pipefail
           git fetch --tags
 
-          # Avoid SIGPIPE 141
           LATEST=$(git tag --list "dev-v*" --sort=-v:refname | head -n1 || true)
 
           if [ -z "$LATEST" ]; then
@@ -49,9 +48,9 @@ jobs:
             exit 1
           fi
 
-          git tag $NEW_TAG
-          git push origin $NEW_TAG
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
 
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -66,7 +65,7 @@ jobs:
         id: get_author
         run: |
           AUTHOR_EMAIL=$(git log -1 --pretty='%ae')
-          echo "author_email=$AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+          echo "author_email=$AUTHOR_EMAIL" >> "$GITHUB_OUTPUT"
 
       - name: Fetch Secrets from Vault
         uses: hashicorp/vault-action@v3.3.0
@@ -76,14 +75,11 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET_ID }}
           secrets: |
-             kv/data/stpl MICROSOFT_TEAMS_WEBHOOK_URL | MICROSOFT_TEAMS_WEBHOOK_URL ;
-  #          kv/data/jalvitaran SSH_KEY | SSH_KEY ;
-             kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
- #           kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD;
-             kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
-             kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
-  #          kv/data/stpl KEY_161 | KEY_161  
-
+            kv/data/stpl MICROSOFT_TEAMS_WEBHOOK_URL | MICROSOFT_TEAMS_WEBHOOK_URL ;
+            kv/data/stpl EMAIL_PASSWORD | EMAIL_PASSWORD ;
+            kv/data/stpl SONAR_TOKEN | SONAR_TOKEN ;
+            kv/data/stpl GIT_TOKEN | GIT_TOKEN ;
+#           kv/data/stpl HARBOR_PASSWORD | HARBOR_PASSWORD ;
 
       - name: SonarQube scan
         uses: sonarsource/sonarqube-scan-action@v3
@@ -91,28 +87,21 @@ jobs:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarqube.shauryatechnosoft.com
         continue-on-error: true
-          
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # or your project's Node version
+          node-version: '22'
 
       - name: Install Dependencies
         run: npm install
 
-     
       - name: Build React App
         run: npm run build
 
-      - name: Build application
-        run: make build
+      - name: Verify build output
+        run: ls -al
 
-      - name: ls
-        run: |
-          ls -al
-
-          
       - name: Upload Website Files
         uses: actions/upload-artifact@v3
         with:
@@ -121,31 +110,29 @@ jobs:
           retention-days: 1
 
       - name: Log in to Docker registry
+        if: env.HARBOR_PASSWORD != ''
         uses: docker/login-action@v3
         with:
           registry: reg.shauryatechnosoft.com
           username: admin
           password: ${{ env.HARBOR_PASSWORD }}
 
-
-      - name: Build and push
+      - name: Build and push Docker image
+        if: env.HARBOR_PASSWORD != ''
         uses: docker/build-push-action@v6
-#        with:
-#          context: .
-#          file: Dockerfile
-#          push: true
-#          tags: | 
-#            reg.shauryatechnosoft.com/notification/ui:latest
-#            reg.shauryatechnosoft.com/notification/ui:${{ needs.tag.outputs.new_tag }}
-#          no-cache: true
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            reg.shauryatechnosoft.com/notification/ui:latest
+            reg.shauryatechnosoft.com/notification/ui:${{ needs.tag.outputs.new_tag }}
+          no-cache: true
 
-          
       - name: Update Helm values with new tag
         run: |
           sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" charts/notification-ui/values.yaml
-          cat charts/notification-ui/values.yaml | grep tag  # Verify
-
-
+          grep tag charts/notification-ui/values.yaml
 
       - name: Commit updated files
         run: |
@@ -153,7 +140,7 @@ jobs:
           git config --global user.email "$(git log -1 --pretty='%ae')"
           git add charts/notification-ui/values.yaml
           git commit -m "Update image tag to ${{ needs.tag.outputs.new_tag }}" || echo "No changes to commit"
-          git push origin dev
+          git push origin demo
 
       - name: Microsoft Teams Notification
         uses: skitionek/notify-microsoft-teams@v1.0.8
@@ -180,7 +167,7 @@ jobs:
           password: ${{ env.EMAIL_PASSWORD }}
           subject: "Build ${{ github.run_number }} for ${{ github.repository }} - ${{ needs.tag.outputs.new_tag }} - ${{ job.status }}"
           to: ${{ steps.get_author.outputs.author_email }}
-          cc: ${{ job.status == 'failure' && format('{0},{1}', 'radhakishan.surwase@shauryatechnosoft.com', 'vaibhav.jadhav@shauryatechnosoft.com') || '' }}
+          cc: ${{ job.status == 'failure' && 'radhakishan.surwase@shauryatechnosoft.com,vaibhav.jadhav@shauryatechnosoft.com' || '' }}
           from: Gitea CI/CD <alerts@shauryatechnosoft.com>
           body: |
             🛠️ Deployment Report
@@ -191,7 +178,7 @@ jobs:
             🔧 Triggered By   : ${{ github.actor }}
             📧 Author Email   : ${{ steps.get_author.outputs.author_email }}
             🔢 Run Number     : ${{ github.run_number }}
-            🕒 Timestamp      : ${{ github.event.head_commit.timestamp || github.event.repository.pushed_at }}
+            🕒 Timestamp      : ${{ github.event.head_commit.timestamp }}
             📤 Status         : ${{ job.status }}
             🔗 GitHub Actions : https://git.shauryatechnosoft.com/${{ github.repository }}/actions/runs/${{ github.run_number }}
 
