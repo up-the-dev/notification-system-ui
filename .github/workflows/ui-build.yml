@@ -2,7 +2,7 @@ name: notification-ui
 
 on:
   push:
-    branches: [ demo ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -94,10 +94,10 @@ jobs:
           node-version: '22'
 
       - name: Install Dependencies
-        run: npm install
+        run: make install
 
       - name: Build React App
-        run: npm run build
+        run: make build
 
       - name: Verify build output
         run: ls -al
@@ -129,18 +129,26 @@ jobs:
             reg.shauryatechnosoft.com/notification/ui:${{ needs.tag.outputs.new_tag }}
           no-cache: true
 
-#       - name: Update Helm values with new tag
-#         run: |
-#           sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" charts/notification-ui/values.yaml
-#           grep tag charts/notification-ui/values.yaml
+      - name: Checkout platform-helm repo
+        uses: actions/checkout@v4
+        with:
+          repository: STPL/platform-helm
+          token: ${{ env.GIT_TOKEN }}
+          path: platform-helm
 
-#      - name: Commit updated files
-#         run: |
-#          git config --global user.name "$(git log -1 --pretty='%an')"
-#           git config --global user.email "$(git log -1 --pretty='%ae')"
-#           git add charts/notification-ui/values.yaml
-#           git commit -m "Update image tag to ${{ needs.tag.outputs.new_tag }}" || echo "No changes to commit"
-#          git push origin demo
+      - name: Update Helm values with new tag
+        run: |
+          sed -i "s|\(tag: \).*|\1\"${{ needs.tag.outputs.new_tag }}\"|" platform-helm/charts/notification-ui/values.yaml
+          cat platform-helm/charts/notification-ui/values.yaml | grep tag  # Verify
+
+      - name: Commit updated values
+        run: |
+          cd platform-helm
+          git config --global user.name "$(git log -1 --pretty='%an')"
+          git config --global user.email "$(git log -1 --pretty='%ae')"
+          git add charts/notification-ui/values.yaml
+          git commit -m "Update values.yaml tag to ${{ needs.tag.outputs.new_tag }}" || echo "No changes to commit"
+          git push origin main
 
       - name: Microsoft Teams Notification
         uses: skitionek/notify-microsoft-teams@v1.0.8
@@ -167,7 +175,7 @@ jobs:
           password: ${{ env.EMAIL_PASSWORD }}
           subject: "Build ${{ github.run_number }} for ${{ github.repository }} - ${{ needs.tag.outputs.new_tag }} - ${{ job.status }}"
           to: ${{ steps.get_author.outputs.author_email }}
-          cc: ${{ job.status == 'failure' && 'radhakishan.surwase@shauryatechnosoft.com,vaibhav.jadhav@shauryatechnosoft.com' || '' }}
+          cc: ${{ job.status == 'failure' && format('{0},{1},{2}', 'umesh.pawar@shauryatechnosoft.com', 'radhakishan.surwase@shauryatechnosoft.com', 'vaibhav.jadhav@shauryatechnosoft.com') || '' }}
           from: Gitea CI/CD <alerts@shauryatechnosoft.com>
           body: |
             🛠️ Deployment Report
