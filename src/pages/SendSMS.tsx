@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useClient } from '../context/ClientContext';
+import { useAppSelector } from '../hooks/redux';
 import { getApiUrl } from '../config/api';
 import { PaperAirplaneIcon, ArrowLeftIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 
 const SendSMS: React.FC = () => {
   const navigate = useNavigate();
-  const { client } = useClient();
+  const { token } = useAppSelector((state) => state.auth);
+  const { clientData } = useAppSelector((state) => state.client);
   const [formData, setFormData] = useState({
     projectId: '',
     purposeId: '',
@@ -17,7 +18,7 @@ const SendSMS: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
 
-  if (!client || client.projects.length === 0) {
+  if (!clientData || !clientData.Projects || clientData.Projects.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -33,8 +34,8 @@ const SendSMS: React.FC = () => {
     );
   }
 
-  const selectedProject = client.projects.find(p => p.project_id === formData.projectId);
-  const availablePurposes = selectedProject?.purposes || [];
+  const selectedProject = clientData.Projects.find(p => p.ID === formData.projectId);
+  const availablePurposes = []; // Update this based on your API structure
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +51,12 @@ const SendSMS: React.FC = () => {
       const response = await fetch(getApiUrl('/sms'), {
         method: 'POST',
         headers: {
-          'X-CLIENT-ID': client.client_id,
+          'X-CLIENT-ID': clientData.ID,
           'X-PROJECT-ID': formData.projectId,
-          'X-API-KEY': selectedProject.api_key,
+          'X-API-KEY': selectedProject.APIKey || '',
           'X-PURPOSE-ID': formData.purposeId || formData.projectId, // Use project ID as fallback
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           mobile: formData.mobile,
@@ -124,9 +126,9 @@ const SendSMS: React.FC = () => {
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-200"
               >
                 <option value="" className="bg-gray-800">Select a project</option>
-                {client.projects.map((project) => (
-                  <option key={project.project_id} value={project.project_id} className="bg-gray-800">
-                    {project.name}
+                {clientData.Projects.map((project) => (
+                  <option key={project.ID} value={project.ID} className="bg-gray-800">
+                    {project.Name}
                   </option>
                 ))}
               </select>
@@ -138,11 +140,11 @@ const SendSMS: React.FC = () => {
                 <div className="space-y-1 text-sm">
                   <div>
                     <span className="text-gray-400">Project: </span>
-                    <span className="text-white">{selectedProject.name}</span>
+                    <span className="text-white">{selectedProject.Name}</span>
                   </div>
                   <div>
                     <span className="text-gray-400">API Key: </span>
-                    <span className="text-orange-400 font-mono text-xs">{selectedProject.api_key.slice(0, 20)}...</span>
+                    <span className="text-orange-400 font-mono text-xs">{selectedProject.APIKey ? selectedProject.APIKey.slice(0, 20) + '...' : 'Not available'}</span>
                   </div>
                 </div>
               </div>
@@ -160,8 +162,8 @@ const SendSMS: React.FC = () => {
                 >
                   <option value="" className="bg-gray-800">Use project default</option>
                   {availablePurposes.map((purpose) => (
-                    <option key={purpose.ID} value={purpose.ID} className="bg-gray-800">
-                      {purpose.Name}
+                    <option key={purpose.id} value={purpose.id} className="bg-gray-800">
+                      {purpose.name}
                     </option>
                   ))}
                 </select>

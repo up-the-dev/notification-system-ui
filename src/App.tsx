@@ -1,35 +1,60 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { store } from './store/store';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 import AnimatedBackground from './components/AnimatedBackground';
 import FloatingActionButton from './components/FloatingActionButton';
-import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
 import CreatePurpose from './pages/CreatePurpose';
 import SendSMS from './pages/SendSMS';
-import { ClientProvider } from './context/ClientContext';
+import AuthProvider from './components/AuthProvider';
 import { PlusIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { useAppSelector } from './hooks/redux';
 
-function App() {
+const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
   return (
-    <ClientProvider>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-          <AnimatedBackground />
-          <Navbar />
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/create-project" element={<CreateProject />} />
-              <Route path="/create-purpose" element={<CreatePurpose />} />
-              <Route path="/send-sms" element={<SendSMS />} />
-            </Routes>
-          </AnimatePresence>
-          
-          {/* Floating Action Buttons */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <AnimatedBackground />
+      {isAuthenticated && <Navbar />}
+      <AnimatePresence mode="wait">
+        <Routes >
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/create-project" element={
+            <ProtectedRoute>
+              <CreateProject />
+            </ProtectedRoute>
+          } />
+          <Route path="/create-purpose" element={
+            <ProtectedRoute>
+              <CreatePurpose />
+            </ProtectedRoute>
+          } />
+          <Route path="/send-sms" element={
+            <ProtectedRoute>
+              <SendSMS />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </AnimatePresence>
+      
+      {/* Floating Action Buttons - only show when authenticated */}
+      {isAuthenticated && (
+        <>
           <FloatingActionButton
             to="/create-project"
             icon={<PlusIcon className="w-6 h-6" />}
@@ -45,9 +70,21 @@ function App() {
             gradient="from-orange-500 to-red-500"
             position="bottom-left"
           />
-        </div>
-      </Router>
-    </ClientProvider>
+        </>
+      )}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Provider store={store}>
+      <AuthProvider>
+        <Router basename="/notifications">
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </Provider>
   );
 }
 

@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useClient } from "../context/ClientContext";
 import { getApiUrl } from "../config/api";
 import { RocketLaunchIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useAppSelector } from "../hooks/redux";
 
 const CreateProject: React.FC = () => {
   const navigate = useNavigate();
+  const token = useAppSelector((state) => state.auth.token);
   const { client, addProject } = useClient();
   const [projectName, setProjectName] = useState("");
   const [senderId, setSenderId] = useState("");
@@ -40,6 +43,7 @@ const CreateProject: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: projectName,

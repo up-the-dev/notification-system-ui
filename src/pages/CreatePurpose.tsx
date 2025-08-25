@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useClient } from "../context/ClientContext";
 import { getApiUrl } from "../config/api";
 import { TagIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useAppSelector } from "../hooks/redux";
 
 const CreatePurpose: React.FC = () => {
   const navigate = useNavigate();
+  const token = useAppSelector((state) => state.auth.token);
   const { client, addPurpose } = useClient();
   const [formData, setFormData] = useState({
     projectId: "",
@@ -44,6 +47,7 @@ const CreatePurpose: React.FC = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           client_id: client.client_id,

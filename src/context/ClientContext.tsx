@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface Project {
   project_id: string;
@@ -32,14 +32,16 @@ interface ClientContextType {
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
-export const ClientProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ClientProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [client, setClient] = useState<Client | null>(null);
 
   const addProject = (project: Project) => {
     if (client) {
       setClient({
         ...client,
-        projects: [...client.projects, project]
+        projects: [...client.projects, project],
       });
     }
   };
@@ -48,17 +50,19 @@ export const ClientProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (client) {
       setClient({
         ...client,
-        projects: client.projects.map(project =>
+        projects: client.projects.map((project) =>
           project.project_id === projectId
             ? { ...project, purposes: [...(project.purposes || []), purpose] }
             : project
-        )
+        ),
       });
     }
   };
 
   return (
-    <ClientContext.Provider value={{ client, setClient, addProject, addPurpose }}>
+    <ClientContext.Provider
+      value={{ client, setClient, addProject, addPurpose }}
+    >
       {children}
     </ClientContext.Provider>
   );
@@ -67,7 +71,7 @@ export const ClientProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 export const useClient = () => {
   const context = useContext(ClientContext);
   if (context === undefined) {
-    throw new Error('useClient must be used within a ClientProvider');
+    throw new Error("useClient must be used within a ClientProvider");
   }
   return context;
 };
