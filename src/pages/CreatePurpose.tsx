@@ -2,15 +2,17 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useClient } from "../context/ClientContext";
 import { getApiUrl } from "../config/api";
 import { TagIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { useAppSelector } from "../hooks/redux";
+import { useAppSelector, useAppDispatch } from "../hooks/redux";
+import { addPurpose, Purpose } from "../store/slices/clientSlice";
 
 const CreatePurpose: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
-  const { client, addPurpose } = useClient();
+  const client = useAppSelector((state) => state.client.clientData);
+
   const [formData, setFormData] = useState({
     projectId: "",
     name: "",
@@ -20,7 +22,7 @@ const CreatePurpose: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<any>(null);
 
-  if (!client || client.projects.length === 0) {
+  if (!client || client.Projects.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -50,7 +52,7 @@ const CreatePurpose: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          client_id: client.client_id,
+          client_id: client.ID,
           project_id: formData.projectId,
           name: formData.name,
           description: formData.description,
@@ -62,7 +64,9 @@ const CreatePurpose: React.FC = () => {
       setApiResponse(data);
 
       if (data.status === "success") {
-        addPurpose(formData.projectId, data.data);
+        // backend returns Purpose with ID/Name/Description/CreatedAt/IsActive
+        const purpose: Purpose = data.data;
+        dispatch(addPurpose({ projectId: formData.projectId, purpose }));
         setTimeout(() => navigate("/dashboard"), 3000);
       }
     } catch (error) {
@@ -122,13 +126,13 @@ const CreatePurpose: React.FC = () => {
                 <option value="" className="bg-gray-800">
                   Select a project
                 </option>
-                {client.projects.map((project) => (
+                {client.Projects.map((project) => (
                   <option
-                    key={project.project_id}
-                    value={project.project_id}
+                    key={project.ID}
+                    value={project.ID}
                     className="bg-gray-800"
                   >
-                    {project.name}
+                    {project.Name}
                   </option>
                 ))}
               </select>

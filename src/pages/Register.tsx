@@ -13,6 +13,7 @@ const Register: React.FC = () => {
     senderId: "",
     email: "",
     password: "",
+    mobileNumber: "",
   });
   const [loading, setLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
@@ -38,16 +39,17 @@ const Register: React.FC = () => {
             sender_id: formData.senderId,
           },
           sender_id: formData.senderId,
+          mobile: formData.mobileNumber,
         }),
       });
 
       const data = await response.json();
       console.log("Response data:", data);
-      
+
       if (data.status === "success") {
         setRegistrationSuccess(true);
         setClientResponse(data);
-        
+
         // Auto-login after successful registration
         setTimeout(async () => {
           // For registration, we'll redirect to login page instead of auto-login
@@ -85,7 +87,7 @@ const Register: React.FC = () => {
             Create your client account and get started with notifications
           </p>
           <p className="text-gray-400">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
@@ -204,6 +206,24 @@ const Register: React.FC = () => {
                   }
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
                   placeholder="Enter your company name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Mobile Number
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.mobileNumber}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      mobileNumber: event.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
+                  placeholder="Your mobile number"
                 />
               </div>
 

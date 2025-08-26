@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../hooks/redux";
-import { setClientData, setLoading, setError } from "../store/slices/clientSlice";
+import {
+  setClientData,
+  setLoading,
+  setError,
+} from "../store/slices/clientSlice";
 import { getApiUrl } from "../config/api";
 import ParticleSystem from "../components/ParticleSystem";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -18,9 +22,12 @@ import {
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const { user, token, clientId } = useAppSelector((state) => state.auth);
-  const { clientData, loading, error } = useAppSelector((state) => state.client);
+  const { clientData, loading, error } = useAppSelector(
+    (state) => state.client
+  );
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
+  // Fetch client + projects + purposes
   useEffect(() => {
     const fetchClientData = async () => {
       if (!clientId || !token) return;
@@ -29,27 +36,35 @@ const Dashboard: React.FC = () => {
       try {
         const response = await fetch(getApiUrl(`/clients/${clientId}`), {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
         const data = await response.json();
-        
-        if (data.status === 'success') {
+
+        if (data.status === "success") {
           dispatch(setClientData(data.data));
         } else {
-          dispatch(setError(data.message || 'Failed to fetch client data'));
+          dispatch(setError(data.message || "Failed to fetch client data"));
         }
       } catch (error) {
-        console.error('Error fetching client data:', error);
-        dispatch(setError('Failed to fetch client data'));
+        console.error("Error fetching client data:", error);
+        dispatch(setError("Failed to fetch client data"));
       }
     };
 
     fetchClientData();
   }, [clientId, token, dispatch]);
 
+  // Clipboard utility
+  const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedKey(text);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,6 +76,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -78,6 +94,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // No client data
   if (!clientData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -91,17 +108,13 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const copyToClipboard = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopiedKey(text);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
-
   const totalProjects = clientData.Projects?.length || 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <ParticleSystem />
+
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -113,7 +126,7 @@ const Dashboard: React.FC = () => {
         <p className="text-gray-400">{clientData.Description}</p>
       </motion.div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -126,9 +139,7 @@ const Dashboard: React.FC = () => {
               <p className="text-cyan-300 text-sm font-semibold">
                 Total Projects
               </p>
-              <p className="text-3xl font-bold text-white">
-                {totalProjects}
-              </p>
+              <p className="text-3xl font-bold text-white">{totalProjects}</p>
             </div>
             <FolderIcon className="w-12 h-12 text-cyan-400" />
           </div>
@@ -146,7 +157,7 @@ const Dashboard: React.FC = () => {
                 Active Projects
               </p>
               <p className="text-3xl font-bold text-white">
-                {clientData.Projects?.filter(p => p.IsActive).length || 0}
+                {clientData.Projects?.filter((p) => p.IsActive).length || 0}
               </p>
             </div>
             <TagIcon className="w-12 h-12 text-purple-400" />
@@ -162,9 +173,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-300 text-sm font-semibold">API Keys</p>
-              <p className="text-3xl font-bold text-white">
-                {totalProjects}
-              </p>
+              <p className="text-3xl font-bold text-white">{totalProjects}</p>
             </div>
             <KeyIcon className="w-12 h-12 text-green-400" />
           </div>
@@ -184,7 +193,7 @@ const Dashboard: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl flex items-center space-x-2"
             >
               <PlusIcon className="w-5 h-5" />
               <span>New Project</span>
@@ -195,7 +204,7 @@ const Dashboard: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl flex items-center space-x-2"
             >
               <TagIcon className="w-5 h-5" />
               <span>New Purpose</span>
@@ -206,7 +215,7 @@ const Dashboard: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 flex items-center space-x-2"
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl flex items-center space-x-2"
             >
               <span>📱</span>
               <span>Send SMS</span>
@@ -215,7 +224,7 @@ const Dashboard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Projects List */}
+      {/* Projects + Purposes */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -231,18 +240,22 @@ const Dashboard: React.FC = () => {
               transition={{ delay: 0.6 + index * 0.1 }}
               className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10"
             >
+              {/* Project Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">
                     {project?.Name}
                   </h3>
                   <p className="text-gray-400 text-sm">
-                    Created:{" "}
-                    {new Date(project?.CreatedAt).toLocaleDateString()}
+                    Created: {new Date(project?.CreatedAt).toLocaleDateString()}
                   </p>
                   <p className="text-gray-400 text-sm">
                     Status:{" "}
-                    <span className={project?.IsActive ? "text-green-400" : "text-red-400"}>
+                    <span
+                      className={
+                        project?.IsActive ? "text-green-400" : "text-red-400"
+                      }
+                    >
                       {project?.IsActive ? "Active" : "Inactive"}
                     </span>
                   </p>
@@ -255,6 +268,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
+              {/* Sender & APIKey */}
               <div className="bg-black/20 rounded-xl p-4 mb-4 space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -266,7 +280,7 @@ const Dashboard: React.FC = () => {
                     {project?.SenderId}
                   </code>
                 </div>
-                
+
                 {project?.APIKey && (
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -290,6 +304,44 @@ const Dashboard: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Purposes Section */}
+              {project?.purposes && project?.purposes.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-3">
+                    Purposes ({project?.purposes?.length})
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {project?.purposes?.map((purpose) => (
+                      <div
+                        key={purpose?.ID}
+                        className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-3"
+                      >
+                        <h5 className="font-semibold text-white text-sm mb-1">
+                          {purpose?.Name}
+                        </h5>
+                        <p className="text-gray-400 text-xs mb-2 line-clamp-2">
+                          {purpose?.Description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`px-2 py-1 rounded text-xs ${
+                              purpose?.IsActive
+                                ? "bg-green-500/20 text-green-300"
+                                : "bg-red-500/20 text-red-300"
+                            }`}
+                          >
+                            {purpose?.IsActive ? "Active" : "Inactive"}
+                          </span>
+                          <code className="text-purple-400 text-xs">
+                            {purpose?.ID?.slice(0, 8)}...
+                          </code>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

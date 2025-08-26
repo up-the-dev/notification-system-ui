@@ -2,15 +2,17 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useClient } from "../context/ClientContext";
 import { getApiUrl } from "../config/api";
 import { RocketLaunchIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { useAppSelector } from "../hooks/redux";
+import { useAppSelector, useAppDispatch } from "../hooks/redux";
+import { addProject } from "../store/slices/clientSlice";
 
 const CreateProject: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
-  const { client, addProject } = useClient();
+  const client = useAppSelector((state) => state.client.clientData);
+
   const [projectName, setProjectName] = useState("");
   const [senderId, setSenderId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ const CreateProject: React.FC = () => {
         },
         body: JSON.stringify({
           name: projectName,
-          client_id: client.client_id,
+          client_id: client.ID,
           sender_id: senderId,
         }),
       });
@@ -57,14 +59,19 @@ const CreateProject: React.FC = () => {
 
       if (data.status === "success") {
         const newProject = {
-          project_id: data.data.project_id,
-          name: projectName,
-          api_key: data.data.api_key,
-          senderId: senderId,
-          created_at: data.data.created_at,
-          purposes: [],
+          ID: data.data.project_id,
+          ClientID: client.ID,
+          Name: projectName,
+          APIKey: data.data.api_key,
+          SenderId: senderId,
+          MetaData: null,
+          IsActive: true,
+          CreatedAt: data.data.created_at,
+          UpdatedAt: data.data.created_at,
+          purposes: [], // <-- important for dashboard
         };
-        addProject(newProject);
+
+        dispatch(addProject(newProject));
         setTimeout(() => navigate("/dashboard"), 3000);
       }
     } catch (error) {
@@ -97,7 +104,8 @@ const CreateProject: React.FC = () => {
           Create New Project
         </h1>
         <p className="text-gray-400">
-          Add a new project to your {client.name} workspace
+          Add a new project to your {(client.Name || client["Name"]) as string}{" "}
+          workspace
         </p>
       </motion.div>
 
@@ -143,13 +151,13 @@ const CreateProject: React.FC = () => {
               <div className="space-y-1 text-sm">
                 <div>
                   <span className="text-gray-400">Client: </span>
-                  <span className="text-white">{client.name}</span>
+                  <span className="text-white">
+                    {client.Name || (client as any).name}
+                  </span>
                 </div>
                 <div>
                   <span className="text-gray-400">Client ID: </span>
-                  <span className="text-cyan-400 font-mono">
-                    {client.client_id}
-                  </span>
+                  <span className="text-cyan-400 font-mono">{client.ID}</span>
                 </div>
               </div>
             </div>

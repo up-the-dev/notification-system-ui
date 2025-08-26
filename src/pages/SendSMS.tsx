@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../hooks/redux';
-import { getApiUrl } from '../config/api';
-import { PaperAirplaneIcon, ArrowLeftIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../hooks/redux";
+import { getApiUrl } from "../config/api";
+import {
+  PaperAirplaneIcon,
+  ArrowLeftIcon,
+  DevicePhoneMobileIcon,
+} from "@heroicons/react/24/outline";
 
 const SendSMS: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useAppSelector((state) => state.auth);
   const { clientData } = useAppSelector((state) => state.client);
   const [formData, setFormData] = useState({
-    projectId: '',
-    purposeId: '',
-    mobile: '',
-    message: ''
+    projectId: "",
+    purposeId: "",
+    mobile: "",
+    message: "",
   });
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
@@ -22,9 +27,11 @@ const SendSMS: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">You need at least one project to send SMS</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            You need at least one project to send SMS
+          </h2>
           <button
-            onClick={() => navigate('/create-project')}
+            onClick={() => navigate("/create-project")}
             className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl hover:from-cyan-600 hover:to-purple-600 transition-colors"
           >
             Create Project First
@@ -34,50 +41,52 @@ const SendSMS: React.FC = () => {
     );
   }
 
-  const selectedProject = clientData.Projects.find(p => p.ID === formData.projectId);
-  const availablePurposes = []; // Update this based on your API structure
+  const selectedProject = clientData.Projects.find(
+    (p) => p.ID === formData.projectId
+  );
+  const availablePurposes = selectedProject?.purposes || []; // ✅ pull from Redux slice
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (!selectedProject) {
-      alert('Please select a project');
+      alert("Please select a project");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch(getApiUrl('/sms'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/sms"), {
+        method: "POST",
         headers: {
-          'X-CLIENT-ID': clientData.ID,
-          'X-PROJECT-ID': formData.projectId,
-          'X-API-KEY': selectedProject.APIKey || '',
-          'X-PURPOSE-ID': formData.purposeId || formData.projectId, // Use project ID as fallback
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "X-CLIENT-ID": clientData.ID,
+          "X-PROJECT-ID": formData.projectId,
+          "X-API-KEY": selectedProject.APIKey || "",
+          "X-PURPOSE-ID": formData.purposeId || formData.projectId, // ✅ use selected purpose if provided
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           mobile: formData.mobile,
-          message: formData.message
+          message: formData.message,
         }),
       });
 
       const data = await response.json();
       setResponse(data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       setResponse({
-        status: 'error',
-        message: 'Failed to send SMS. Please check your connection.'
+        status: "error",
+        message: "Failed to send SMS. Please check your connection.",
       });
     }
     setLoading(false);
   };
 
   const resetForm = () => {
-    setFormData({ projectId: '', purposeId: '', mobile: '', message: '' });
+    setFormData({ projectId: "", purposeId: "", mobile: "", message: "" });
     setResponse(null);
   };
 
@@ -86,7 +95,7 @@ const SendSMS: React.FC = () => {
       <motion.button
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        onClick={() => navigate('/dashboard')}
+        onClick={() => navigate("/dashboard")}
         className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors mb-6"
       >
         <ArrowLeftIcon className="w-5 h-5" />
@@ -115,6 +124,7 @@ const SendSMS: React.FC = () => {
       >
         {!response ? (
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Project Select */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Select Project
@@ -122,21 +132,36 @@ const SendSMS: React.FC = () => {
               <select
                 required
                 value={formData.projectId}
-                onChange={(e) => setFormData({ ...formData, projectId: e.target.value, purposeId: '' })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    projectId: e.target.value,
+                    purposeId: "",
+                  })
+                }
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-200"
               >
-                <option value="" className="bg-gray-800">Select a project</option>
+                <option value="" className="bg-gray-800">
+                  Select a project
+                </option>
                 {clientData.Projects.map((project) => (
-                  <option key={project.ID} value={project.ID} className="bg-gray-800">
+                  <option
+                    key={project.ID}
+                    value={project.ID}
+                    className="bg-gray-800"
+                  >
                     {project.Name}
                   </option>
                 ))}
               </select>
             </div>
 
+            {/* Project Details */}
             {selectedProject && (
               <div className="bg-black/20 rounded-xl p-4 border border-orange-500/20">
-                <h3 className="text-sm font-semibold text-orange-300 mb-2">Selected Project Details</h3>
+                <h3 className="text-sm font-semibold text-orange-300 mb-2">
+                  Selected Project Details
+                </h3>
                 <div className="space-y-1 text-sm">
                   <div>
                     <span className="text-gray-400">Project: </span>
@@ -144,12 +169,17 @@ const SendSMS: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-gray-400">API Key: </span>
-                    <span className="text-orange-400 font-mono text-xs">{selectedProject.APIKey ? selectedProject.APIKey.slice(0, 20) + '...' : 'Not available'}</span>
+                    <span className="text-orange-400 font-mono text-xs">
+                      {selectedProject.APIKey
+                        ? selectedProject.APIKey.slice(0, 20) + "..."
+                        : "Not available"}
+                    </span>
                   </div>
                 </div>
               </div>
             )}
 
+            {/* Purpose Select */}
             {availablePurposes.length > 0 && (
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -157,19 +187,28 @@ const SendSMS: React.FC = () => {
                 </label>
                 <select
                   value={formData.purposeId}
-                  onChange={(e) => setFormData({ ...formData, purposeId: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, purposeId: e.target.value })
+                  }
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-200"
                 >
-                  <option value="" className="bg-gray-800">Use project default</option>
+                  <option value="" className="bg-gray-800">
+                    Use project default
+                  </option>
                   {availablePurposes.map((purpose) => (
-                    <option key={purpose.id} value={purpose.id} className="bg-gray-800">
-                      {purpose.name}
+                    <option
+                      key={purpose.ID}
+                      value={purpose.ID}
+                      className="bg-gray-800"
+                    >
+                      {purpose.Name}
                     </option>
                   ))}
                 </select>
               </div>
             )}
 
+            {/* Mobile */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Mobile Number
@@ -178,12 +217,15 @@ const SendSMS: React.FC = () => {
                 type="tel"
                 required
                 value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, mobile: e.target.value })
+                }
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-200"
                 placeholder="Enter mobile number (e.g., 8208709752)"
               />
             </div>
 
+            {/* Message */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Message
@@ -191,7 +233,9 @@ const SendSMS: React.FC = () => {
               <textarea
                 required
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all duration-200 h-32 resize-none"
                 placeholder="Type your message here..."
                 maxLength={160}
@@ -201,6 +245,7 @@ const SendSMS: React.FC = () => {
               </div>
             </div>
 
+            {/* Submit */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -223,36 +268,59 @@ const SendSMS: React.FC = () => {
             </motion.button>
           </form>
         ) : (
+          // ✅ Response Screen stays the same
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center"
           >
-            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 ${
-              response.status === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'
-            }`}>
+            <div
+              className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 ${
+                response.status === "success"
+                  ? "bg-green-500/20"
+                  : "bg-red-500/20"
+              }`}
+            >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className={`text-2xl ${response.status === 'success' ? 'text-green-400' : 'text-red-400'}`}
+                className={`text-2xl ${
+                  response.status === "success"
+                    ? "text-green-400"
+                    : "text-red-400"
+                }`}
               >
-                {response.status === 'success' ? '✓' : '✗'}
+                {response.status === "success" ? "✓" : "✗"}
               </motion.div>
             </div>
-            
-            <h2 className={`text-2xl font-bold mb-4 ${
-              response.status === 'success' ? 'text-green-400' : 'text-red-400'
-            }`}>
-              {response.status === 'success' ? 'SMS Sent Successfully!' : 'SMS Failed to Send'}
+
+            <h2
+              className={`text-2xl font-bold mb-4 ${
+                response.status === "success"
+                  ? "text-green-400"
+                  : "text-red-400"
+              }`}
+            >
+              {response.status === "success"
+                ? "SMS Sent Successfully!"
+                : "SMS Failed to Send"}
             </h2>
-            
+
             <div className="bg-black/20 rounded-xl p-6 mb-6 text-left">
-              <h3 className="text-lg font-semibold text-gray-300 mb-3">Response Details</h3>
+              <h3 className="text-lg font-semibold text-gray-300 mb-3">
+                Response Details
+              </h3>
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="text-gray-400">Status: </span>
-                  <span className={response.status === 'success' ? 'text-green-400' : 'text-red-400'}>
+                  <span
+                    className={
+                      response.status === "success"
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }
+                  >
                     {response.status}
                   </span>
                 </div>
@@ -269,12 +337,14 @@ const SendSMS: React.FC = () => {
                 {response.serverTime && (
                   <div>
                     <span className="text-gray-400">Server Time: </span>
-                    <span className="text-white">{new Date(response.serverTime).toLocaleString()}</span>
+                    <span className="text-white">
+                      {new Date(response.serverTime).toLocaleString()}
+                    </span>
                   </div>
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-4">
               <button
                 onClick={resetForm}
@@ -283,7 +353,7 @@ const SendSMS: React.FC = () => {
                 Send Another SMS
               </button>
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-purple-600 transition-all duration-200"
               >
                 Back to Dashboard
