@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CreateProject from './pages/CreateProject';
 import CreatePurpose from './pages/CreatePurpose';
+import CreateMembership from './pages/CreateMembership';
 import SendSMS from './pages/SendSMS';
 import AuthProvider from './components/AuthProvider';
 import { PlusIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
@@ -42,6 +43,11 @@ const AppContent: React.FC = () => {
           <Route path="/create-purpose" element={
             <ProtectedRoute>
               <CreatePurpose />
+            </ProtectedRoute>
+          } />
+          <Route path="/create-membership" element={
+            <ProtectedRoute>
+              <CreateMembership />
             </ProtectedRoute>
           } />
           <Route path="/send-sms" element={
