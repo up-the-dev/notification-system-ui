@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
   const navigationItems = [
     { path: "/dashboard", name: "Dashboard", icon: ChartBarIcon },
     { path: "/create-project", name: "New Project", icon: PlusIcon },
+    { path: "/create-membership", name: "Add Plans", icon: HomeIcon },
     { path: "/send-sms", name: "Send SMS", icon: PaperAirplaneIcon },
   ];
 
