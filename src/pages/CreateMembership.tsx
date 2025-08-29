@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../hooks/redux";
 import { addMembership, Plan } from "../store/slices/clientSlice";
 import { getApiUrl } from "../config/api";
+import CelebrationAnimation from "../components/CelebrationAnimation";
 import {
   SparklesIcon,
   RocketLaunchIcon,
@@ -185,7 +186,8 @@ const CreateMembership: React.FC = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4 relative">
+        <CelebrationAnimation />
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

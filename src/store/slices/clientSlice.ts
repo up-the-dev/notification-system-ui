@@ -7,6 +7,7 @@ export interface Purpose {
   Description: string;
   CreatedAt: string;
   IsActive: boolean;
+  MetaData?: string;
 }
 
 export interface Plan {
