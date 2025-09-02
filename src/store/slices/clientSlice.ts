@@ -7,8 +7,35 @@ export interface Purpose {
   Description: string;
   CreatedAt: string;
   IsActive: boolean;
+  MetaData?: string;
 }
 
+export interface Plan {
+  ID: string;
+  Name: string;
+  Description: string;
+  Channel: string;
+  Quota: number;
+  Price: number;
+  Duration: number;
+  IsActive: boolean;
+  CreatedAt: string;
+  UpdatedAt: string;
+}
+
+export interface Membership {
+  ID: string;
+  ClientID: string;
+  PlanID: string;
+  QuotaUsed: number;
+  QuotaTotal: number;
+  ValidTill: string;
+  Status: string;
+  CreatedAt: string;
+  UpdatedAt: string;
+  Plan: Plan;
+  Client: any;
+}
 export interface Project {
   ID: string; // backend id
   ClientID: string;
@@ -35,12 +62,16 @@ export interface ClientData {
 
 interface ClientState {
   clientData: ClientData | null;
+  memberships: Membership[];
+  membershipLoading: boolean;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ClientState = {
   clientData: null,
+  memberships: [],
+  membershipLoading: false,
   loading: false,
   error: null,
 };
@@ -109,6 +140,17 @@ const clientSlice = createSlice({
         proj.purposes.push(action.payload.purpose);
       }
     },
+    setMemberships: (state, action: PayloadAction<Membership[]>) => {
+      state.memberships = action.payload;
+      state.membershipLoading = false;
+      state.error = null;
+    },
+    setMembershipLoading: (state, action: PayloadAction<boolean>) => {
+      state.membershipLoading = action.payload;
+    },
+    addMembership: (state, action: PayloadAction<Membership>) => {
+      state.memberships.push(action.payload);
+    },
   },
 });
 
@@ -119,6 +161,9 @@ export const {
   clearClientData,
   addProject,
   addPurpose,
+  setMemberships,
+  setMembershipLoading,
+  addMembership,
 } = clientSlice.actions;
 
 export default clientSlice.reducer;
