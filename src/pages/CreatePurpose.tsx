@@ -187,7 +187,7 @@ const CreatePurpose: React.FC = () => {
         };
       }
 
-      const response = await fetch(getApiUrl("/purposes"), {
+      const response = await fetch(getApiUrl("/purpose"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
