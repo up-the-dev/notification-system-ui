@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../config/api";
@@ -24,8 +24,39 @@ interface Variable {
 const CreatePurpose: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const token = useAppSelector((state) => state.auth.token);
-  const client = useAppSelector((state) => state.client.clientData);
+
+  // const client = useAppSelector((state) => state.client.clientData);
+  const [client, setClient] = useState<any>(null);
+  const { token, clientId } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    const fetchClientData = async () => {
+      if (!clientId || !token) return;
+
+      try {
+        const response = await fetch(getApiUrl(`/clients/${clientId}`), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+          // dispatch(setClientData(data.data));
+          setClient(data.data);
+        } else {
+          setError(data.message || "Failed to fetch client data");
+        }
+      } catch (error) {
+        console.error("Error fetching client data:", error);
+        setError("Failed to fetch client data");
+      }
+    };
+
+    fetchClientData();
+  }, [clientId, token, dispatch]);
 
   const [step, setStep] = useState(1); // 1: Medium Selection, 2: Purpose Details
   const [selectedMedium, setSelectedMedium] = useState<"sms" | "whatsapp" | "">(
