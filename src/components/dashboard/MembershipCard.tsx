@@ -26,7 +26,16 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
   const daysRemaining = Math.ceil(
     (validTill.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   );
-  const isExpiring = daysRemaining <= 7 || quotaPercentage >= 90;
+  let expiryStatus = "";
+  if (daysRemaining <= 7 || quotaPercentage >= 90) {
+    if (daysRemaining <= 0 || quotaPercentage >= 100) {
+      expiryStatus = "Expired";
+    } else if (daysRemaining <= 7 || quotaPercentage >= 90) {
+      expiryStatus = "Expiring Soon";
+    }
+  } else {
+    expiryStatus = "Active";
+  }
 
   const channelColor =
     membership.Plan?.Channel?.toLowerCase() === "sms"
@@ -52,7 +61,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
       }}
       whileHover={{ y: -8, scale: 1.02 }}
       className={`bg-white/5 backdrop-blur-xl rounded-3xl p-8 border relative overflow-hidden group shadow-2xl ${
-        isExpiring ? "border-orange-500/50" : "border-white/10"
+        expiryStatus !== "Active" ? "border-orange-500/50" : "border-white/10"
       }`}
     >
       {/* Animated background */}
@@ -70,7 +79,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
       />
 
       {/* Expiring Warning */}
-      {isExpiring && (
+      {/* {expiryStatus === "Expiring Soon" && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -86,7 +95,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
             Expiring Soon
           </span>
         </motion.div>
-      )}
+      )}  */}
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-8">
@@ -99,18 +108,17 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
           </motion.div>
 
           <div className="text-right">
-            <p className="text-xs text-gray-400 mb-1">Status</p>
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2 + index * 0.1, type: "spring" }}
               className={`px-4 py-2 rounded-full text-sm font-semibold border ${
-                membership.Status.toLowerCase() === "active"
+                expiryStatus.toLowerCase() === "active"
                   ? "bg-green-500/20 text-green-300 border-green-500/30"
                   : "bg-red-500/20 text-red-300 border-red-500/30"
               }`}
             >
-              {membership.Status}
+              {expiryStatus}
             </motion.span>
           </div>
         </div>
@@ -209,7 +217,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({
         </div>
 
         {/* Action Button */}
-        {isExpiring && (
+        {expiryStatus !== "Active" && (
           <Link to="/create-membership">
             <motion.button
               whileHover={{ scale: 1.02 }}

@@ -276,7 +276,7 @@ const Dashboard: React.FC = () => {
             {/* Analytics Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-16">
               {/* Usage Chart */}
-              <div className="xl:col-span-3">
+              <div className="xl:col-span-2">
                 <UsageChart
                   data={{
                     sms: { used: usedSMSQuota, total: totalSMSQuota },
@@ -287,15 +287,18 @@ const Dashboard: React.FC = () => {
                   }}
                 />
               </div>
+              <div className="xl:col-span-1">
+                <ClientInfoCard client={clientData} userEmail={user?.email} />
+              </div>
             </div>
 
             {/* Client Information */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-16">
+            {/* <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-16">
               <div className="xl:col-span-1 ">
                 <ClientInfoCard client={clientData} userEmail={user?.email} />
-              </div>
-              {/* Quota Charts */}
-              <div className="xl:col-span-1">
+              </div> */}
+            {/* Quota Charts */}
+            {/* <div className="xl:col-span-1">
                 {smsMemeberships.length > 0 && (
                   <QuotaChart
                     used={usedSMSQuota}
@@ -320,8 +323,8 @@ const Dashboard: React.FC = () => {
                     }
                   />
                 )}
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
             {/* Membership Summary */}
             {/*    <motion.div
