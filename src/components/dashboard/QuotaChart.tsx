@@ -27,7 +27,7 @@ const QuotaChart: React.FC<QuotaChartProps> = ({
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`bg-gradient-to-br ${color} backdrop-blur-xl rounded-3xl p-8 border border-white/20 relative overflow-hidden group shadow-2xl`}
+      className={`bg-gradient-to-br ${color} backdrop-blur-xl h-full rounded-3xl p-8 border border-white/20 relative overflow-hidden group shadow-2xl`}
     >
       {/* Background animation */}
       <motion.div
@@ -43,8 +43,8 @@ const QuotaChart: React.FC<QuotaChartProps> = ({
         }}
       />
 
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-6">
+      <div className="relative z-10 ">
+        <div className="flex items-center justify-between ">
           <motion.div
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}

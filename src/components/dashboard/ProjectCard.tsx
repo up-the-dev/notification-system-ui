@@ -28,7 +28,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   // Parse metadata to get configurations
   const metadata = project.MetaData
     ? typeof project.MetaData === "string"
-      ? JSON.parse(project.MetaData)
+      ? project.MetaData
       : project.MetaData
     : null;
   const mediums = metadata?.mediums || [];
@@ -343,7 +343,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             <div className="grid grid-cols-1 gap-4 max-h-60 overflow-y-auto custom-scrollbar">
               {project.purposes.map((purpose, purposeIndex) => {
                 const purposeMetadata = purpose.MetaData
-                  ? JSON.parse(purpose.MetaData)
+                  ? purpose.MetaData
                   : null;
                 const purposeMedium = purposeMetadata?.medium || "sms";
 
