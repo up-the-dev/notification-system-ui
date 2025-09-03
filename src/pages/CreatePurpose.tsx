@@ -3,21 +3,21 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../config/api";
-import { 
-  TagIcon, 
+import {
+  TagIcon,
   ArrowLeftIcon,
   DevicePhoneMobileIcon,
   ChatBubbleLeftRightIcon,
   CheckCircleIcon,
   PlusIcon,
-  TrashIcon
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useAppSelector, useAppDispatch } from "../hooks/redux";
 import { addPurpose, Purpose } from "../store/slices/clientSlice";
 
 interface Variable {
   name: string;
-  type: 'text' | 'number';
+  type: "text" | "number";
   position: number;
 }
 
@@ -28,7 +28,9 @@ const CreatePurpose: React.FC = () => {
   const client = useAppSelector((state) => state.client.clientData);
 
   const [step, setStep] = useState(1); // 1: Medium Selection, 2: Purpose Details
-  const [selectedMedium, setSelectedMedium] = useState<'sms' | 'whatsapp' | ''>('');
+  const [selectedMedium, setSelectedMedium] = useState<"sms" | "whatsapp" | "">(
+    ""
+  );
   const [formData, setFormData] = useState({
     projectId: "",
     name: "",
@@ -44,32 +46,32 @@ const CreatePurpose: React.FC = () => {
 
   const mediumOptions = [
     {
-      id: 'sms' as const,
-      name: 'SMS',
+      id: "sms" as const,
+      name: "SMS",
       icon: <DevicePhoneMobileIcon className="w-6 h-6" />,
-      color: 'from-blue-500 to-cyan-500',
-      description: 'Create SMS purpose'
+      color: "from-blue-500 to-cyan-500",
+      description: "Create SMS purpose",
     },
     {
-      id: 'whatsapp' as const,
-      name: 'WhatsApp',
+      id: "whatsapp" as const,
+      name: "WhatsApp",
       icon: <ChatBubbleLeftRightIcon className="w-6 h-6" />,
-      color: 'from-green-500 to-emerald-500',
-      description: 'Create WhatsApp purpose'
-    }
+      color: "from-green-500 to-emerald-500",
+      description: "Create WhatsApp purpose",
+    },
   ];
 
   const languageOptions = [
-    { code: 'en_US', name: 'English (US)' },
-    { code: 'en_GB', name: 'English (UK)' },
-    { code: 'hi_IN', name: 'Hindi (India)' },
-    { code: 'es_ES', name: 'Spanish (Spain)' },
-    { code: 'fr_FR', name: 'French (France)' },
+    { code: "en_US", name: "English (US)" },
+    { code: "en_GB", name: "English (UK)" },
+    { code: "hi_IN", name: "Hindi (India)" },
+    { code: "es_ES", name: "Spanish (Spain)" },
+    { code: "fr_FR", name: "French (France)" },
   ];
 
   const templateTypeOptions = [
-    { value: 'utility', name: 'Utility' },
-    { value: 'marketing', name: 'Marketing' },
+    { value: "utility", name: "Utility" },
+    { value: "marketing", name: "Marketing" },
   ];
 
   if (!client || client.Projects.length === 0) {
@@ -116,16 +118,16 @@ const CreatePurpose: React.FC = () => {
       setError("Template ID is required");
       return false;
     }
-    
+
     // Validate variables for WhatsApp
-    if (selectedMedium === 'whatsapp' && variables.length > 0) {
-      const positions = variables.map(v => v.position);
+    if (selectedMedium === "whatsapp" && variables.length > 0) {
+      const positions = variables.map((v) => v.position);
       const uniquePositions = new Set(positions);
       if (positions.length !== uniquePositions.size) {
         setError("Variable positions must be unique");
         return false;
       }
-      
+
       for (const variable of variables) {
         if (!variable.name.trim()) {
           setError("All variable names are required");
@@ -133,7 +135,7 @@ const CreatePurpose: React.FC = () => {
         }
       }
     }
-    
+
     setError("");
     return true;
   };
@@ -152,8 +154,14 @@ const CreatePurpose: React.FC = () => {
   };
 
   const addVariable = () => {
-    const nextPosition = variables.length > 0 ? Math.max(...variables.map(v => v.position)) + 1 : 1;
-    setVariables([...variables, { name: '', type: 'text', position: nextPosition }]);
+    const nextPosition =
+      variables.length > 0
+        ? Math.max(...variables.map((v) => v.position)) + 1
+        : 1;
+    setVariables([
+      ...variables,
+      { name: "", type: "text", position: nextPosition },
+    ]);
   };
 
   const removeVariable = (index: number) => {
@@ -168,22 +176,22 @@ const CreatePurpose: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateStep2()) return;
-    
+
     setLoading(true);
 
     try {
       let metadata: any = {
-        medium: selectedMedium
+        medium: selectedMedium,
       };
 
-      if (selectedMedium === 'whatsapp') {
+      if (selectedMedium === "whatsapp") {
         metadata = {
           ...metadata,
           language: { code: formData.language },
           variables: variables,
-          template_type: formData.templateType
+          template_type: formData.templateType,
         };
       }
 
@@ -199,7 +207,7 @@ const CreatePurpose: React.FC = () => {
           name: formData.name,
           description: formData.description,
           template_id: formData.templateId,
-          metadata: JSON.stringify(metadata),
+          metadata: metadata,
         }),
       });
 
@@ -209,7 +217,7 @@ const CreatePurpose: React.FC = () => {
       if (data.status === "success") {
         const purpose: Purpose = {
           ...data.data,
-          MetaData: JSON.stringify(metadata)
+          MetaData: JSON.stringify(metadata),
         };
         dispatch(addPurpose({ projectId: formData.projectId, purpose }));
         setTimeout(() => navigate("/dashboard"), 3000);
@@ -306,9 +314,13 @@ const CreatePurpose: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Choose Medium</h2>
-                <p className="text-gray-400 mb-6">Select the communication medium for this purpose</p>
-                
+                <h2 className="text-2xl font-bold text-white mb-6">
+                  Choose Medium
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  Select the communication medium for this purpose
+                </p>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {mediumOptions.map((medium) => (
                     <motion.div
@@ -323,14 +335,18 @@ const CreatePurpose: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className={`p-3 rounded-xl bg-gradient-to-r ${medium.color}`}>
+                        <div
+                          className={`p-3 rounded-xl bg-gradient-to-r ${medium.color}`}
+                        >
                           {medium.icon}
                         </div>
                         {selectedMedium === medium.id && (
                           <CheckCircleIcon className="w-6 h-6 text-green-400" />
                         )}
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">{medium.name}</h3>
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        {medium.name}
+                      </h3>
                       <p className="text-gray-400">{medium.description}</p>
                     </motion.div>
                   ))}
@@ -345,9 +361,13 @@ const CreatePurpose: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Purpose Configuration</h2>
-                <p className="text-gray-400 mb-6">Configure your {selectedMedium?.toUpperCase()} purpose</p>
-                
+                <h2 className="text-2xl font-bold text-white mb-6">
+                  Purpose Configuration
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  Configure your {selectedMedium?.toUpperCase()} purpose
+                </p>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -400,7 +420,10 @@ const CreatePurpose: React.FC = () => {
                       required
                       value={formData.description}
                       onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
                       }
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200 h-32 resize-none"
                       placeholder="Describe what this purpose is used for and when notifications should be sent..."
@@ -424,11 +447,13 @@ const CreatePurpose: React.FC = () => {
                   </div>
 
                   {/* WhatsApp specific fields */}
-                  {selectedMedium === 'whatsapp' && (
+                  {selectedMedium === "whatsapp" && (
                     <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 space-y-6">
                       <div className="flex items-center space-x-2 mb-4">
                         <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
-                        <h3 className="text-lg font-semibold text-green-300">WhatsApp Configuration</h3>
+                        <h3 className="text-lg font-semibold text-green-300">
+                          WhatsApp Configuration
+                        </h3>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -438,11 +463,20 @@ const CreatePurpose: React.FC = () => {
                           </label>
                           <select
                             value={formData.language}
-                            onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                language: e.target.value,
+                              })
+                            }
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-200"
                           >
                             {languageOptions.map((lang) => (
-                              <option key={lang.code} value={lang.code} className="bg-gray-800">
+                              <option
+                                key={lang.code}
+                                value={lang.code}
+                                className="bg-gray-800"
+                              >
                                 {lang.name}
                               </option>
                             ))}
@@ -455,11 +489,20 @@ const CreatePurpose: React.FC = () => {
                           </label>
                           <select
                             value={formData.templateType}
-                            onChange={(e) => setFormData({ ...formData, templateType: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                templateType: e.target.value,
+                              })
+                            }
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-200"
                           >
                             {templateTypeOptions.map((type) => (
-                              <option key={type.value} value={type.value} className="bg-gray-800">
+                              <option
+                                key={type.value}
+                                value={type.value}
+                                className="bg-gray-800"
+                              >
                                 {type.name}
                               </option>
                             ))}
@@ -502,26 +545,48 @@ const CreatePurpose: React.FC = () => {
                                     <input
                                       type="text"
                                       value={variable.name}
-                                      onChange={(e) => updateVariable(index, 'name', e.target.value)}
+                                      onChange={(e) =>
+                                        updateVariable(
+                                          index,
+                                          "name",
+                                          e.target.value
+                                        )
+                                      }
                                       className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500/50"
                                       placeholder="customer_name"
                                     />
                                   </div>
-                                  
+
                                   <div>
                                     <label className="block text-xs text-gray-400 mb-1">
                                       Type
                                     </label>
                                     <select
                                       value={variable.type}
-                                      onChange={(e) => updateVariable(index, 'type', e.target.value as 'text' | 'number')}
+                                      onChange={(e) =>
+                                        updateVariable(
+                                          index,
+                                          "type",
+                                          e.target.value as "text" | "number"
+                                        )
+                                      }
                                       className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-green-500/50"
                                     >
-                                      <option value="text" className="bg-gray-800">Text</option>
-                                      <option value="number" className="bg-gray-800">Number</option>
+                                      <option
+                                        value="text"
+                                        className="bg-gray-800"
+                                      >
+                                        Text
+                                      </option>
+                                      <option
+                                        value="number"
+                                        className="bg-gray-800"
+                                      >
+                                        Number
+                                      </option>
                                     </select>
                                   </div>
-                                  
+
                                   <div>
                                     <label className="block text-xs text-gray-400 mb-1">
                                       Position
@@ -530,11 +595,17 @@ const CreatePurpose: React.FC = () => {
                                       type="number"
                                       min="1"
                                       value={variable.position}
-                                      onChange={(e) => updateVariable(index, 'position', parseInt(e.target.value))}
+                                      onChange={(e) =>
+                                        updateVariable(
+                                          index,
+                                          "position",
+                                          parseInt(e.target.value)
+                                        )
+                                      }
                                       className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-green-500/50"
                                     />
                                   </div>
-                                  
+
                                   <button
                                     type="button"
                                     onClick={() => removeVariable(index)}
@@ -592,9 +663,13 @@ const CreatePurpose: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-gray-400">Medium: </span>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    selectedMedium === 'sms' ? 'bg-blue-500/20 text-blue-300' : 'bg-green-500/20 text-green-300'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs ${
+                      selectedMedium === "sms"
+                        ? "bg-blue-500/20 text-blue-300"
+                        : "bg-green-500/20 text-green-300"
+                    }`}
+                  >
                     {selectedMedium?.toUpperCase()}
                   </span>
                 </div>
@@ -661,7 +736,11 @@ const CreatePurpose: React.FC = () => {
                   <motion.div
                     className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   />
                 ) : (
                   <>

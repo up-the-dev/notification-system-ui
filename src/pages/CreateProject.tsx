@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../config/api";
-import { 
-  RocketLaunchIcon, 
+import {
+  RocketLaunchIcon,
   ArrowLeftIcon,
   DevicePhoneMobileIcon,
   ChatBubbleLeftRightIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useAppSelector, useAppDispatch } from "../hooks/redux";
 import { addProject } from "../store/slices/clientSlice";
@@ -33,19 +33,19 @@ const CreateProject: React.FC = () => {
 
   const mediumOptions = [
     {
-      id: 'sms',
-      name: 'SMS',
+      id: "sms",
+      name: "SMS",
       icon: <DevicePhoneMobileIcon className="w-6 h-6" />,
-      color: 'from-blue-500 to-cyan-500',
-      description: 'Send SMS notifications'
+      color: "from-blue-500 to-cyan-500",
+      description: "Send SMS notifications",
     },
     {
-      id: 'whatsapp',
-      name: 'WhatsApp',
+      id: "whatsapp",
+      name: "WhatsApp",
       icon: <ChatBubbleLeftRightIcon className="w-6 h-6" />,
-      color: 'from-green-500 to-emerald-500',
-      description: 'Send WhatsApp messages'
-    }
+      color: "from-green-500 to-emerald-500",
+      description: "Send WhatsApp messages",
+    },
   ];
 
   if (!client) {
@@ -67,9 +67,9 @@ const CreateProject: React.FC = () => {
   }
 
   const handleMediumToggle = (mediumId: string) => {
-    setSelectedMediums(prev => {
+    setSelectedMediums((prev) => {
       const newSelection = prev.includes(mediumId)
-        ? prev.filter(id => id !== mediumId)
+        ? prev.filter((id) => id !== mediumId)
         : [...prev, mediumId];
       return newSelection;
     });
@@ -90,13 +90,13 @@ const CreateProject: React.FC = () => {
       setError("Project name is required");
       return false;
     }
-    
-    if (selectedMediums.includes('sms') && !formData.senderId.trim()) {
+
+    if (selectedMediums.includes("sms") && !formData.senderId.trim()) {
       setError("Sender ID is required for SMS");
       return false;
     }
-    
-    if (selectedMediums.includes('whatsapp')) {
+
+    if (selectedMediums.includes("whatsapp")) {
       if (!formData.phoneNumberId.trim()) {
         setError("Phone Number ID is required for WhatsApp");
         return false;
@@ -106,7 +106,7 @@ const CreateProject: React.FC = () => {
         return false;
       }
     }
-    
+
     setError("");
     return true;
   };
@@ -126,32 +126,33 @@ const CreateProject: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateStep2()) return;
-    
+
     setLoading(true);
 
     try {
       // Prepare metadata for WhatsApp
-      const metadata: any = {
-        mediums: selectedMediums
+      let metadata: any = {
+        mediums: selectedMediums,
       };
-      
-      if (selectedMediums.includes('whatsapp')) {
-        metadata.whatsapp = {
+
+      if (selectedMediums.includes("whatsapp")) {
+        metadata = {
+          mediums: selectedMediums,
           phoneNumberId: formData.phoneNumberId,
-          accessToken: formData.accessToken
+          accessToken: formData.accessToken,
         };
       }
 
       const payload: any = {
         name: formData.projectName,
         client_id: client.ID,
-        metadata: metadata
+        metadata: metadata,
       };
 
       // Add sender_id only if SMS is selected
-      if (selectedMediums.includes('sms')) {
+      if (selectedMediums.includes("sms")) {
         payload.sender_id = formData.senderId;
       }
 
@@ -274,9 +275,13 @@ const CreateProject: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Choose Communication Medium</h2>
-                <p className="text-gray-400 mb-6">Select which notification channels this project will use</p>
-                
+                <h2 className="text-2xl font-bold text-white mb-6">
+                  Choose Communication Medium
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  Select which notification channels this project will use
+                </p>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   {mediumOptions.map((medium) => (
                     <motion.div
@@ -291,14 +296,18 @@ const CreateProject: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className={`p-3 rounded-xl bg-gradient-to-r ${medium.color}`}>
+                        <div
+                          className={`p-3 rounded-xl bg-gradient-to-r ${medium.color}`}
+                        >
                           {medium.icon}
                         </div>
                         {selectedMediums.includes(medium.id) && (
                           <CheckCircleIcon className="w-6 h-6 text-green-400" />
                         )}
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-2">{medium.name}</h3>
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        {medium.name}
+                      </h3>
                       <p className="text-gray-400">{medium.description}</p>
                     </motion.div>
                   ))}
@@ -313,9 +322,13 @@ const CreateProject: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Project Configuration</h2>
-                <p className="text-gray-400 mb-6">Configure your project settings</p>
-                
+                <h2 className="text-2xl font-bold text-white mb-6">
+                  Project Configuration
+                </h2>
+                <p className="text-gray-400 mb-6">
+                  Configure your project settings
+                </p>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -325,29 +338,41 @@ const CreateProject: React.FC = () => {
                       type="text"
                       required
                       value={formData.projectName}
-                      onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          projectName: e.target.value,
+                        })
+                      }
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all duration-200"
                       placeholder="Enter your project name"
                     />
                   </div>
 
                   {/* SMS Configuration */}
-                  {selectedMediums.includes('sms') && (
+                  {selectedMediums.includes("sms") && (
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-6">
                       <div className="flex items-center space-x-2 mb-4">
                         <DevicePhoneMobileIcon className="w-5 h-5 text-blue-400" />
-                        <h3 className="text-lg font-semibold text-blue-300">SMS Configuration</h3>
+                        <h3 className="text-lg font-semibold text-blue-300">
+                          SMS Configuration
+                        </h3>
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-semibold text-gray-300 mb-2">
                           Sender ID *
                         </label>
                         <input
                           type="text"
-                          required={selectedMediums.includes('sms')}
+                          required={selectedMediums.includes("sms")}
                           value={formData.senderId}
-                          onChange={(e) => setFormData({ ...formData, senderId: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              senderId: e.target.value,
+                            })
+                          }
                           className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
                           placeholder="Enter your SMS sender ID"
                         />
@@ -356,13 +381,15 @@ const CreateProject: React.FC = () => {
                   )}
 
                   {/* WhatsApp Configuration */}
-                  {selectedMediums.includes('whatsapp') && (
+                  {selectedMediums.includes("whatsapp") && (
                     <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6">
                       <div className="flex items-center space-x-2 mb-4">
                         <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-400" />
-                        <h3 className="text-lg font-semibold text-green-300">WhatsApp Configuration</h3>
+                        <h3 className="text-lg font-semibold text-green-300">
+                          WhatsApp Configuration
+                        </h3>
                       </div>
-                      
+
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -370,23 +397,33 @@ const CreateProject: React.FC = () => {
                           </label>
                           <input
                             type="text"
-                            required={selectedMediums.includes('whatsapp')}
+                            required={selectedMediums.includes("whatsapp")}
                             value={formData.phoneNumberId}
-                            onChange={(e) => setFormData({ ...formData, phoneNumberId: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                phoneNumberId: e.target.value,
+                              })
+                            }
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-200"
                             placeholder="Enter WhatsApp Phone Number ID"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-semibold text-gray-300 mb-2">
                             Access Token *
                           </label>
                           <input
                             type="text"
-                            required={selectedMediums.includes('whatsapp')}
+                            required={selectedMediums.includes("whatsapp")}
                             value={formData.accessToken}
-                            onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                accessToken: e.target.value,
+                              })
+                            }
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-all duration-200"
                             placeholder="Enter WhatsApp Access Token"
                           />
@@ -406,11 +443,17 @@ const CreateProject: React.FC = () => {
                       </div>
                       <div>
                         <span className="text-gray-400">Client ID: </span>
-                        <span className="text-cyan-400 font-mono">{client.ID}</span>
+                        <span className="text-cyan-400 font-mono">
+                          {client.ID}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Selected Mediums: </span>
-                        <span className="text-white">{selectedMediums.join(', ').toUpperCase()}</span>
+                        <span className="text-gray-400">
+                          Selected Mediums:{" "}
+                        </span>
+                        <span className="text-white">
+                          {selectedMediums.join(", ").toUpperCase()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -465,7 +508,7 @@ const CreateProject: React.FC = () => {
                 <div>
                   <span className="text-gray-400">Mediums: </span>
                   <span className="text-white">
-                    {selectedMediums.join(', ').toUpperCase()}
+                    {selectedMediums.join(", ").toUpperCase()}
                   </span>
                 </div>
                 <div>
