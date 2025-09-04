@@ -226,7 +226,9 @@ const Dashboard: React.FC = () => {
                   gradient="from-blue-500/20 to-cyan-600/20"
                   progress={
                     totalSMSQuota > 0
-                      ? ((totalSMSQuota - usedSMSQuota) / totalSMSQuota) * 100
+                      ? ((totalSMSQuota - (totalSMSQuota - usedSMSQuota)) /
+                          totalSMSQuota) *
+                        100
                       : 0
                   }
                   delay={0.1}
@@ -245,7 +247,8 @@ const Dashboard: React.FC = () => {
                   gradient="from-green-500/20 to-emerald-600/20"
                   progress={
                     totalWhatsAppQuota > 0
-                      ? ((totalWhatsAppQuota - usedWhatsAppQuota) /
+                      ? ((totalWhatsAppQuota -
+                          (totalWhatsAppQuota - usedWhatsAppQuota)) /
                           totalWhatsAppQuota) *
                         100
                       : 0
