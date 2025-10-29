@@ -19,3 +19,5 @@ export const API_CONFIG = {
 export const getApiUrl = (endpoint: string) => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 };
+
+export const API_URL = API_CONFIG.BASE_URL;

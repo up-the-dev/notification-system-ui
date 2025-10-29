@@ -14,6 +14,11 @@ import CreateProject from "./pages/CreateProject";
 import CreatePurpose from "./pages/CreatePurpose";
 import CreateMembership from "./pages/CreateMembership";
 import SendSMS from "./pages/SendSMS";
+import AdminUsers from "./pages/AdminUsers";
+import AdminClients from "./pages/AdminClients";
+import AdminProjects from "./pages/AdminProjects";
+import AdminMemberships from "./pages/AdminMemberships";
+import AdminPurposes from "./pages/AdminPurposes";
 import AuthProvider from "./components/AuthProvider";
 import { PlusIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { useAppSelector } from "./hooks/redux";
@@ -74,6 +79,46 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <SendSMS />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/clients"
+            element={
+              <ProtectedRoute>
+                <AdminClients />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/projects"
+            element={
+              <ProtectedRoute>
+                <AdminProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/memberships"
+            element={
+              <ProtectedRoute>
+                <AdminMemberships />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/purposes"
+            element={
+              <ProtectedRoute>
+                <AdminPurposes />
               </ProtectedRoute>
             }
           />
